@@ -1,35 +1,31 @@
 package org.anilcan.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.anilcan.exception.ContactNotFoundException;
 import org.anilcan.exception.InvalidPhoneNumberException;
 import org.anilcan.model.entity.Contact;
 import org.anilcan.model.request.EditContactRequest;
 import org.anilcan.model.request.NewContactRequest;
 import org.anilcan.repository.PhoneBookRepository;
-import org.anilcan.utility.enums.ExceptionMessages;
+import org.anilcan.utility.enums.ExceptionMessage;
 import org.anilcan.utility.helpers.PhoneBookHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class PhoneBookService {
 
-    private final Logger logger = LoggerFactory.getLogger(PhoneBookService.class);
-    private PhoneBookRepository phoneBookRepository;
-    private PhoneBookHelper phoneBookHelper;
-
-    public PhoneBookService(PhoneBookRepository phoneBookRepository, PhoneBookHelper phoneBookHelper) {
-        this.phoneBookRepository = phoneBookRepository;
-        this.phoneBookHelper = phoneBookHelper;
-    }
+    private final PhoneBookRepository phoneBookRepository;
+    private final PhoneBookHelper phoneBookHelper;
 
     public Contact addContact(NewContactRequest newContactRequest) throws InvalidPhoneNumberException {
 
-        logger.info("PBS - processing new contact request.");
+        log.info("PBS - processing new contact request.");
 
         if (!phoneBookHelper.isPhoneNumberValid(newContactRequest.getPhoneNumber()))
-            throw new InvalidPhoneNumberException(ExceptionMessages.INVALID_PHONE_NUMBER.message);
+            throw new InvalidPhoneNumberException();
 
         Contact contact = Contact.builder()
                 .firstName(newContactRequest.getFirstName())
@@ -44,14 +40,18 @@ public class PhoneBookService {
     public Contact editContact(EditContactRequest editContactRequest, String phoneNumberToSearch)
             throws InvalidPhoneNumberException, ContactNotFoundException {
 
-        logger.info("PBS - processing edit contact request.");
+        log.info("PBS - processing edit contact request.");
 
         if (!phoneBookHelper.isPhoneNumberValid(editContactRequest.getPhoneNumber()) ||
                 !phoneBookHelper.isPhoneNumberValid(phoneNumberToSearch))
-            throw new InvalidPhoneNumberException(ExceptionMessages.INVALID_PHONE_NUMBER.message);
+            throw new InvalidPhoneNumberException();
 
-        //TODO: throw contact not found if below method doesn't work
-        Contact contactToUpdate = phoneBookRepository.getContactByPhoneNumber(phoneNumberToSearch);
+        var optionalContact = phoneBookRepository.findByPhoneNumber(phoneNumberToSearch);
+
+        if(optionalContact.isEmpty())
+            throw new ContactNotFoundException();
+
+        Contact contactToUpdate=optionalContact.get();
 
         contactToUpdate.setFirstName(editContactRequest.getFirstName());
         contactToUpdate.setLastName(editContactRequest.getLastName());
@@ -63,13 +63,17 @@ public class PhoneBookService {
 
     public void deleteContact(String phoneNumber) throws InvalidPhoneNumberException, ContactNotFoundException {
 
-        logger.info("PBS - processing delete contact request.");
+        log.info("PBS - processing delete contact request.");
 
         if (!phoneBookHelper.isPhoneNumberValid(phoneNumber))
-            throw new InvalidPhoneNumberException(ExceptionMessages.INVALID_PHONE_NUMBER.message);
+            throw new InvalidPhoneNumberException();
 
-        //TODO: throw contact not found if below method doesn't work
-        Contact contactToDelete = phoneBookRepository.getContactByPhoneNumber(phoneNumber);
+        var optionalContact = phoneBookRepository.findByPhoneNumber(phoneNumber);
+
+        if(optionalContact.isEmpty())
+            throw new ContactNotFoundException();
+
+        Contact contactToDelete=optionalContact.get();
 
         phoneBookRepository.delete(contactToDelete);
     }

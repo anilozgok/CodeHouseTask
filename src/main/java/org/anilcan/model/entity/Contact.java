@@ -2,22 +2,31 @@ package org.anilcan.model.entity;
 
 import lombok.*;
 import org.anilcan.utility.enums.Gender;
+import org.hibernate.annotations.ColumnTransformer;
+import org.springframework.beans.factory.annotation.Value;
+
 import javax.persistence.*;
 
-@Data
+
+@Entity
+@Getter
+@Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name="contacts")
 public class Contact {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "id", nullable = false)
+    @Column(nullable = false)
     private Long id;
-    @Column(name="firstName", nullable = false)
+    @Column(nullable = false)
     private String firstName;
-    @Column(name="lastName", nullable = false)
+    @Column(nullable = false)
     private String lastName;
-    @Column(name="phoneNumber", nullable = false)
+    @Column(nullable = false)
     private String phoneNumber;
-    @Column(name="gender", nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 6)
     private Gender gender;
 }

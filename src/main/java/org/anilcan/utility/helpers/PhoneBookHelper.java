@@ -1,8 +1,11 @@
 package org.anilcan.utility.helpers;
 
+import org.springframework.stereotype.Component;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Component
 public class PhoneBookHelper {
 
     public boolean isPhoneNumberValid(String phoneNumber){

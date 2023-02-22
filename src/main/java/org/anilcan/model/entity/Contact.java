@@ -2,8 +2,6 @@ package org.anilcan.model.entity;
 
 import lombok.*;
 import org.anilcan.utility.enums.Gender;
-import org.hibernate.annotations.ColumnTransformer;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.persistence.*;
 
@@ -14,7 +12,7 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name="contacts")
+@Table(name = "contacts")
 public class Contact {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

@@ -1,6 +1,5 @@
 package org.anilcan.exception.handler;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.anilcan.exception.base.BaseException;
 import org.anilcan.model.response.ErrorResponseModel;

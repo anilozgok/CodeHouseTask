@@ -8,7 +8,6 @@ import org.anilcan.model.entity.Contact;
 import org.anilcan.model.request.EditContactRequest;
 import org.anilcan.model.request.NewContactRequest;
 import org.anilcan.repository.PhoneBookRepository;
-import org.anilcan.utility.enums.ExceptionMessage;
 import org.anilcan.utility.helpers.PhoneBookHelper;
 import org.springframework.stereotype.Service;
 
@@ -48,10 +47,10 @@ public class PhoneBookService {
 
         var optionalContact = phoneBookRepository.findByPhoneNumber(phoneNumberToSearch);
 
-        if(optionalContact.isEmpty())
+        if (optionalContact.isEmpty())
             throw new ContactNotFoundException();
 
-        Contact contactToUpdate=optionalContact.get();
+        Contact contactToUpdate = optionalContact.get();
 
         contactToUpdate.setFirstName(editContactRequest.getFirstName());
         contactToUpdate.setLastName(editContactRequest.getLastName());
@@ -70,10 +69,10 @@ public class PhoneBookService {
 
         var optionalContact = phoneBookRepository.findByPhoneNumber(phoneNumber);
 
-        if(optionalContact.isEmpty())
+        if (optionalContact.isEmpty())
             throw new ContactNotFoundException();
 
-        Contact contactToDelete=optionalContact.get();
+        Contact contactToDelete = optionalContact.get();
 
         phoneBookRepository.delete(contactToDelete);
     }

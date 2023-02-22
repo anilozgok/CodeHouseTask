@@ -9,7 +9,7 @@ import org.anilcan.utility.enums.Gender;
 public abstract class ContactResponse {
 
     private Long id;
-    private String  firstName;
+    private String firstName;
     private String lastName;
     private String phoneNumber;
     private Gender gender;

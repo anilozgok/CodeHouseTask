@@ -5,7 +5,7 @@ import org.anilcan.utility.enums.ExceptionMessage;
 
 public class InvalidPhoneNumberException extends BaseException {
 
-    public InvalidPhoneNumberException(){
+    public InvalidPhoneNumberException() {
         super(ExceptionMessage.INVALID_PHONE_NUMBER);
     }
 }

@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 @Component
 public class PhoneBookHelper {
 
-    public boolean isPhoneNumberValid(String phoneNumber){
+    public boolean isPhoneNumberValid(String phoneNumber) {
         Pattern pattern = Pattern.compile("^(05)([0-9]{2})\\s?([0-9]{3})\\s?([0-9]{2})\\s?([0-9]{2})$");
         Matcher matcher = pattern.matcher(phoneNumber);
         return matcher.matches();

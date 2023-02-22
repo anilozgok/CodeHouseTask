@@ -13,7 +13,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"firstName\": \"Anıl\",\r\n    \"lastName\": \"Can\",\r\n    \"phoneNumber\":\"0555 555 5555\",\r\n    \"gender\": \"Male\"\r\n}",
+					"raw": "{\r\n    \"firstName\": \"Anıl\",\r\n    \"lastName\": \"Can\",\r\n    \"phoneNumber\":\"0555 555 5555\",\r\n    \"gender\": \"MALE\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -45,7 +45,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"firstName\": \"Anıl Can\",\r\n    \"lastName\": \"Özgök\",\r\n    \"phoneNumber\":\"0555 555 5555\",\r\n    \"gender\": \"Male\"\r\n}",
+					"raw": "{\r\n    \"firstName\": \"Anıl Can\",\r\n    \"lastName\": \"Özgök\",\r\n    \"phoneNumber\":\"0555 555 5555\",\r\n    \"gender\": \"MALE\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"

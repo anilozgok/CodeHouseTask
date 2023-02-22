@@ -1,8 +1,11 @@
 package org.anilcan.exception;
 
-public class ContactNotFoundException extends RuntimeException {
+import org.anilcan.exception.base.BaseException;
+import org.anilcan.utility.enums.ExceptionMessage;
 
-    public ContactNotFoundException(String message) {
-        super(message);
+public class ContactNotFoundException extends BaseException {
+
+    public ContactNotFoundException() {
+        super(ExceptionMessage.CONTACT_NOT_FOUND);
     }
 }

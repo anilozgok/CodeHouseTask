@@ -1,8 +1,11 @@
 package org.anilcan.exception;
 
-public class InvalidPhoneNumberException extends RuntimeException{
+import org.anilcan.exception.base.BaseException;
+import org.anilcan.utility.enums.ExceptionMessage;
 
-    public InvalidPhoneNumberException(String message){
-        super(message);
+public class InvalidPhoneNumberException extends BaseException {
+
+    public InvalidPhoneNumberException(){
+        super(ExceptionMessage.INVALID_PHONE_NUMBER);
     }
 }

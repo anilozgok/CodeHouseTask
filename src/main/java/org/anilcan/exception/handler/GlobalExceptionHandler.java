@@ -13,12 +13,11 @@ import java.time.LocalDateTime;
 
 @Slf4j
 @RestControllerAdvice
-@RequiredArgsConstructor
 public class GlobalExceptionHandler {
     @ExceptionHandler(BaseException.class)
     private ResponseEntity<ErrorResponseModel> handle(BaseException exception) {
 
-        log.error("Error occurred: ",exception);
+        log.error("Error occurred: ", exception);
 
         return new ResponseEntity<>(new ErrorResponseModel(exception.getExceptionMessage(), LocalDateTime.now()),
                 exception.getExceptionMessage().getErrorCode());
@@ -28,7 +27,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     private ResponseEntity<ErrorResponseModel> handle(Exception exception) {
 
-        log.error("Error occurred: ",exception);
+        log.error("Error occurred: ", exception);
 
         return new ResponseEntity<>(new ErrorResponseModel(ExceptionMessage.UNKNOWN_EXCEPTION, LocalDateTime.now()),
                 ExceptionMessage.UNKNOWN_EXCEPTION.getErrorCode());

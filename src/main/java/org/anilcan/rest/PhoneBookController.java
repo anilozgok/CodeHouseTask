@@ -1,10 +1,12 @@
 package org.anilcan.rest;
 
+import lombok.extern.slf4j.Slf4j;
 import org.anilcan.model.entity.Contact;
 import org.anilcan.model.request.EditContactRequest;
 import org.anilcan.model.request.NewContactRequest;
 import org.anilcan.model.response.ContactEditedResponse;
 import org.anilcan.model.response.ContactSavedResponse;
+import org.anilcan.repository.PhoneBookRepository;
 import org.anilcan.service.PhoneBookService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,21 +16,23 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @Validated
+@Slf4j
 @RestController
-@RequestMapping("/api/phone-book/contact")
+@RequestMapping("/api/phone-book/contact/")
 public class PhoneBookController {
-
-    private final Logger logger = LoggerFactory.getLogger(PhoneBookController.class);
+    private final PhoneBookRepository phoneBookRepository;
 
     private PhoneBookService phoneBookService;
 
-    public PhoneBookController(PhoneBookService phoneBookService) {
+    public PhoneBookController(PhoneBookService phoneBookService,
+                               PhoneBookRepository phoneBookRepository) {
         this.phoneBookService = phoneBookService;
+        this.phoneBookRepository = phoneBookRepository;
     }
 
     @PostMapping("/add/")
     public ResponseEntity<ContactSavedResponse> addContact(@RequestBody NewContactRequest newContactRequest) {
-        logger.info("PBC - addContact service caught with new contact request.");
+        log.info("PBC - addContact service caught with new contact request.");
 
         Contact contactAdded = phoneBookService.addContact(newContactRequest);
 
@@ -46,7 +50,7 @@ public class PhoneBookController {
     @PutMapping("/edit/{phoneNumber}/")
     public ResponseEntity<ContactEditedResponse> editContact(@RequestBody EditContactRequest editContactRequest,
                                                              @PathVariable("phoneNumber") String phoneNumber) {
-        logger.info("PBC - editContact service caught with edit contact request.");
+        log.info("PBC - editContact service caught with edit contact request.");
 
         Contact contactEdited = phoneBookService.editContact(editContactRequest, phoneNumber);
 
@@ -61,12 +65,12 @@ public class PhoneBookController {
     }
 
     @DeleteMapping("/delete/{phoneNumber}/")
-    public ResponseEntity deleteContact(@PathVariable("phoneNumber") String phoneNumber) {
-        logger.info("PBC - deleteContact service caught with delete contact request.");
+    public ResponseEntity<Void> deleteContact(@PathVariable("phoneNumber") String phoneNumber) {
+        log.info("PBC - deleteContact service caught with delete contact request.");
 
         phoneBookService.deleteContact(phoneNumber);
 
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

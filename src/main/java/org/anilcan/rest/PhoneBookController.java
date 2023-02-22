@@ -13,9 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+@Validated
 @RestController
 @RequestMapping("/api/phone-book/contact")
-@Validated
 public class PhoneBookController {
 
     private final Logger logger = LoggerFactory.getLogger(PhoneBookController.class);

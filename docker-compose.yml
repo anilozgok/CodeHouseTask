@@ -8,6 +8,10 @@ services:
       - "8080:8080"
     depends_on:
       - postgresql
+    networks:
+      - code-house-network
+    environment:
+      - spring.datasource.url=jdbc:postgresql://postgresql/phoneBook
   postgresql:
     image: postgres
     ports:
@@ -16,3 +20,20 @@ services:
       - POSTGRES_PASSWORD=test
       - POSTGRES_USER=test
       - POSTGRES_DB=phoneBook
+    networks:
+      - code-house-network
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - "5050:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=test@test.com
+      - PGADMIN_DEFAULT_PASSWORD=test
+    depends_on:
+      - postgresql
+    networks:
+      - code-house-network
+
+networks:
+  code-house-network:
+    driver: bridge

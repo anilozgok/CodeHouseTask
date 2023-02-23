@@ -2,8 +2,7 @@ package org.anilcan.model.entity;
 
 import lombok.*;
 import org.anilcan.utility.Gender;
-
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 
 @Entity

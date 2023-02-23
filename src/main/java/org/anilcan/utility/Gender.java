@@ -1,4 +1,4 @@
-package org.anilcan.utility.enums;
+package org.anilcan.utility;
 
 public enum Gender {
     MALE,

@@ -8,8 +8,10 @@ import org.anilcan.model.entity.Contact;
 import org.anilcan.model.request.EditContactRequest;
 import org.anilcan.model.request.NewContactRequest;
 import org.anilcan.repository.PhoneBookRepository;
-import org.anilcan.utility.helpers.PhoneBookHelper;
 import org.springframework.stereotype.Service;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -17,9 +19,10 @@ import org.springframework.stereotype.Service;
 public class PhoneBookService {
 
     private final PhoneBookRepository phoneBookRepository;
-    private final PhoneBookHelper phoneBookHelper;
 
     public Contact addContact(NewContactRequest newContactRequest) throws InvalidPhoneNumberException {
+
+        PhoneBookHelper phoneBookHelper = new PhoneBookHelper();
 
         log.info("PBS - processing new contact request.");
 
@@ -40,6 +43,8 @@ public class PhoneBookService {
             throws InvalidPhoneNumberException, ContactNotFoundException {
 
         log.info("PBS - processing edit contact request.");
+
+        PhoneBookHelper phoneBookHelper = new PhoneBookHelper();
 
         if (!phoneBookHelper.isPhoneNumberValid(editContactRequest.getPhoneNumber()) ||
                 !phoneBookHelper.isPhoneNumberValid(phoneNumberToSearch))
@@ -64,6 +69,8 @@ public class PhoneBookService {
 
         log.info("PBS - processing delete contact request.");
 
+        PhoneBookHelper phoneBookHelper = new PhoneBookHelper();
+
         if (!phoneBookHelper.isPhoneNumberValid(phoneNumber))
             throw new InvalidPhoneNumberException();
 
@@ -77,4 +84,11 @@ public class PhoneBookService {
         phoneBookRepository.delete(contactToDelete);
     }
 
+    private static class PhoneBookHelper {
+        public boolean isPhoneNumberValid(String phoneNumber) {
+            Pattern pattern = Pattern.compile("^(05)([0-9]{2})\\s?([0-9]{3})\\s?([0-9]{2})\\s?([0-9]{2})$");
+            Matcher matcher = pattern.matcher(phoneNumber);
+            return matcher.matches();
+        }
+    }
 }

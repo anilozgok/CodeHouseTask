@@ -2,7 +2,7 @@ package org.anilcan.model.response.base;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.anilcan.utility.enums.Gender;
+import org.anilcan.utility.Gender;
 
 @Data
 @AllArgsConstructor

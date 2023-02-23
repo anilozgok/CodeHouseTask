@@ -2,7 +2,7 @@ package org.anilcan.exception.base;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.anilcan.utility.enums.ExceptionMessage;
+import org.anilcan.utility.ExceptionMessage;
 
 @Getter
 @RequiredArgsConstructor

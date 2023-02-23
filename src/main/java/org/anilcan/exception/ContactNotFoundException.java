@@ -1,7 +1,7 @@
 package org.anilcan.exception;
 
 import org.anilcan.exception.base.BaseException;
-import org.anilcan.utility.enums.ExceptionMessage;
+import org.anilcan.utility.ExceptionMessage;
 
 public class ContactNotFoundException extends BaseException {
 

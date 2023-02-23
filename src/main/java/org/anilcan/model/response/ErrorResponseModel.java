@@ -1,6 +1,6 @@
 package org.anilcan.model.response;
 
-import org.anilcan.utility.enums.ExceptionMessage;
+import org.anilcan.utility.ExceptionMessage;
 
 import java.time.LocalDateTime;
 

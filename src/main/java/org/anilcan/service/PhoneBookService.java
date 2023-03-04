@@ -1,94 +1,85 @@
 package org.anilcan.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.anilcan.exception.ContactNotFoundException;
 import org.anilcan.exception.InvalidPhoneNumberException;
+import org.anilcan.model.domain.ContactRecord;
+import org.anilcan.model.domain.Phone;
+import org.anilcan.model.dto.request.EditContactRequest;
 import org.anilcan.model.entity.Contact;
-import org.anilcan.model.request.EditContactRequest;
-import org.anilcan.model.request.NewContactRequest;
 import org.anilcan.repository.PhoneBookRepository;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.stereotype.Service;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class PhoneBookService {
-
     private final PhoneBookRepository phoneBookRepository;
 
-    public Contact addContact(NewContactRequest newContactRequest) throws InvalidPhoneNumberException {
-
-        PhoneBookHelper phoneBookHelper = new PhoneBookHelper();
+    public ImmutablePair<Long, ContactRecord> addContact(ContactRecord newContact) {
 
         log.info("PBS - processing new contact request.");
 
-        if (!phoneBookHelper.isPhoneNumberValid(newContactRequest.getPhoneNumber()))
+        if (!newContact.phone().isValid())
             throw new InvalidPhoneNumberException();
 
-        Contact contact = Contact.builder()
-                .firstName(newContactRequest.getFirstName())
-                .lastName(newContactRequest.getLastName())
-                .phoneNumber(newContactRequest.getPhoneNumber())
-                .gender(newContactRequest.getGender())
+        var contact = Contact.builder()
+                .firstName(newContact.firstName())
+                .lastName(newContact.lastName())
+                .phoneNumber(newContact.phone().number())
+                .gender(newContact.gender())
                 .build();
 
-        return phoneBookRepository.save(contact);
+        var savedContact = phoneBookRepository.save(contact);
+        var retVal = new ContactRecord(savedContact.getFirstName(), savedContact.getLastName(), new Phone(savedContact.getPhoneNumber()), savedContact.getGender());
+
+        return ImmutablePair.of(savedContact.getId(), retVal);
     }
 
-    public Contact editContact(EditContactRequest editContactRequest, String phoneNumberToSearch)
-            throws InvalidPhoneNumberException, ContactNotFoundException {
+    @Transactional
+    public ImmutablePair<Long, ContactRecord> editContact(EditContactRequest editContactRequest, String phoneNumberToSearch) {
 
         log.info("PBS - processing edit contact request.");
 
-        PhoneBookHelper phoneBookHelper = new PhoneBookHelper();
+        var oldPhoneNumber = new Phone(phoneNumberToSearch);
 
-        if (!phoneBookHelper.isPhoneNumberValid(editContactRequest.getPhoneNumber()) ||
-                !phoneBookHelper.isPhoneNumberValid(phoneNumberToSearch))
+        if (!bothPhoneNumbersValid(oldPhoneNumber, editContactRequest.info().phone()))
             throw new InvalidPhoneNumberException();
 
         var optionalContact = phoneBookRepository.findByPhoneNumber(phoneNumberToSearch);
+        var contactToUpdate = optionalContact.orElseThrow(ContactNotFoundException::new);
 
-        if (optionalContact.isEmpty())
-            throw new ContactNotFoundException();
+        contactToUpdate.setFirstName(editContactRequest.info().firstName());
+        contactToUpdate.setLastName(editContactRequest.info().lastName());
+        contactToUpdate.setPhoneNumber(editContactRequest.info().phone().number());
+        contactToUpdate.setGender(editContactRequest.info().gender());
 
-        Contact contactToUpdate = optionalContact.get();
+        var updatedContact = phoneBookRepository.save(contactToUpdate);
+        var retVal = new ContactRecord(updatedContact.getFirstName(), updatedContact.getLastName(), new Phone(updatedContact.getPhoneNumber()), updatedContact.getGender());
 
-        contactToUpdate.setFirstName(editContactRequest.getFirstName());
-        contactToUpdate.setLastName(editContactRequest.getLastName());
-        contactToUpdate.setPhoneNumber(editContactRequest.getPhoneNumber());
-        contactToUpdate.setGender(editContactRequest.getGender());
-
-        return phoneBookRepository.save(contactToUpdate);
+        return ImmutablePair.of(updatedContact.getId(), retVal);
     }
 
-    public void deleteContact(String phoneNumber) throws InvalidPhoneNumberException, ContactNotFoundException {
+    @Transactional
+    public void deleteContact(String phoneNumber) {
 
         log.info("PBS - processing delete contact request.");
 
-        PhoneBookHelper phoneBookHelper = new PhoneBookHelper();
+        var phone = new Phone(phoneNumber);
 
-        if (!phoneBookHelper.isPhoneNumberValid(phoneNumber))
+        if (!phone.isValid())
             throw new InvalidPhoneNumberException();
 
         var optionalContact = phoneBookRepository.findByPhoneNumber(phoneNumber);
-
-        if (optionalContact.isEmpty())
-            throw new ContactNotFoundException();
-
-        Contact contactToDelete = optionalContact.get();
+        var contactToDelete = optionalContact.orElseThrow(ContactNotFoundException::new);
 
         phoneBookRepository.delete(contactToDelete);
     }
-}
 
-class PhoneBookHelper {
-    public boolean isPhoneNumberValid(String phoneNumber) {
-        Pattern pattern = Pattern.compile("^(05)([0-9]{2})\\s?([0-9]{3})\\s?([0-9]{2})\\s?([0-9]{2})$");
-        Matcher matcher = pattern.matcher(phoneNumber);
-        return matcher.matches();
+    private boolean bothPhoneNumbersValid(Phone oldPhone, Phone newPhone) {
+        return oldPhone.isValid() || newPhone.isValid();
     }
 }

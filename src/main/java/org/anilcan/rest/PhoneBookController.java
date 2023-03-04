@@ -1,65 +1,57 @@
 package org.anilcan.rest;
 
+import jakarta.validation.constraints.NotBlank;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.anilcan.model.domain.ContactRecord;
+import org.anilcan.model.dto.request.EditContactRequest;
+import org.anilcan.model.dto.request.NewContactRequest;
+import org.anilcan.model.dto.response.ContactEditedResponse;
+import org.anilcan.model.dto.response.ContactSavedResponse;
 import org.anilcan.model.entity.Contact;
-import org.anilcan.model.request.EditContactRequest;
-import org.anilcan.model.request.NewContactRequest;
-import org.anilcan.model.response.ContactEditedResponse;
-import org.anilcan.model.response.ContactSavedResponse;
 import org.anilcan.service.PhoneBookService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@Validated
 @Slf4j
+@Validated
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/phone-book/contact/")
 public class PhoneBookController {
 
-    private PhoneBookService phoneBookService;
-
-    public PhoneBookController(PhoneBookService phoneBookService) {
-        this.phoneBookService = phoneBookService;
-    }
+    private final PhoneBookService phoneBookService;
 
     @PostMapping("/add/")
     public ResponseEntity<ContactSavedResponse> addContact(@RequestBody NewContactRequest newContactRequest) {
         log.info("PBC - addContact service caught with new contact request.");
 
-        Contact contactAdded = phoneBookService.addContact(newContactRequest);
+        var contactAdded = phoneBookService.addContact(newContactRequest.info());
 
-        return new ResponseEntity<>(
-                new ContactSavedResponse(
-                        contactAdded.getId(),
-                        contactAdded.getFirstName(),
-                        contactAdded.getLastName(),
-                        contactAdded.getPhoneNumber(),
-                        contactAdded.getGender()
-                ), HttpStatus.OK);
+        return new ResponseEntity<>(new ContactSavedResponse(contactAdded.getLeft(), contactAdded.getRight()), HttpStatus.OK);
 
     }
 
     @PutMapping("/edit/{phoneNumber}/")
     public ResponseEntity<ContactEditedResponse> editContact(@RequestBody EditContactRequest editContactRequest,
-                                                             @PathVariable("phoneNumber") String phoneNumber) {
+                                                             @PathVariable("phoneNumber") @NotBlank String phoneNumber) {
+
+        //TODO: phoneNumber from header
+
         log.info("PBC - editContact service caught with edit contact request.");
 
-        Contact contactEdited = phoneBookService.editContact(editContactRequest, phoneNumber);
+        var contactEdited = phoneBookService.editContact(editContactRequest, phoneNumber);
 
-        return new ResponseEntity<>(
-                new ContactEditedResponse(
-                        contactEdited.getId(),
-                        contactEdited.getFirstName(),
-                        contactEdited.getLastName(),
-                        contactEdited.getPhoneNumber(),
-                        contactEdited.getGender()
-                ), HttpStatus.OK);
+        return new ResponseEntity<>(new ContactEditedResponse(contactEdited.getLeft(), contactEdited.getRight()), HttpStatus.OK);
     }
 
     @DeleteMapping("/delete/{phoneNumber}/")
-    public ResponseEntity<Void> deleteContact(@PathVariable("phoneNumber") String phoneNumber) {
+    public ResponseEntity<Void> deleteContact(@PathVariable("phoneNumber") @NotBlank String phoneNumber) {
+
+        //TODO: phoneNumber from header
+
         log.info("PBC - deleteContact service caught with delete contact request.");
 
         phoneBookService.deleteContact(phoneNumber);
@@ -67,4 +59,9 @@ public class PhoneBookController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @GetMapping("/by-phone-number/{phoneNumber}")
+    public ResponseEntity<Void> getContactByPhoneNumber(@PathVariable("phoneNumber") String phoneNumber) {
+        //TODO:logic will be implemented
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

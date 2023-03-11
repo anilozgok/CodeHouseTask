@@ -2,7 +2,7 @@ package org.anilcan.exception.handler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.anilcan.exception.base.BaseException;
-import org.anilcan.model.dto.response.ErrorResponseModel;
+import org.anilcan.model.response.ErrorResponseModel;
 import org.anilcan.utility.ExceptionMessage;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

@@ -1,4 +1,4 @@
-package org.anilcan.model.dto.response;
+package org.anilcan.model.response;
 
 import org.anilcan.utility.ExceptionMessage;
 

@@ -2,8 +2,9 @@ package org.anilcan.service;
 
 import org.anilcan.model.domain.ContactRecord;
 import org.anilcan.model.domain.Phone;
-import org.anilcan.model.dto.request.EditContactRequest;
 import org.anilcan.model.entity.Contact;
+import org.anilcan.model.request.EditContactRequest;
+import org.anilcan.model.request.NewContactRequest;
 import org.anilcan.repository.PhoneBookRepository;
 import org.anilcan.utility.Gender;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -30,8 +31,8 @@ class PhoneBookServiceTest {
     @Mock
     private PhoneBookRepository phoneBookRepository;
 
-    private final ContactRecord contact1 = new ContactRecord("Anıl", "Can", Phone.valueOf("0555 555 5555"), Gender.MALE);
-    private final ContactRecord contact2 = new ContactRecord("Anıl Can", "Özgök", Phone.valueOf("0555 555 5555"), Gender.MALE);
+    private final ContactRecord contactAnil = new ContactRecord("Anıl", "Can", Phone.valueOf("0555 555 5555"), Gender.MALE);
+    private final ContactRecord contactAnilCan = new ContactRecord("Anıl Can", "Özgök", Phone.valueOf("0555 555 5555"), Gender.MALE);
 
     @Test
     void addContact() {
@@ -48,10 +49,14 @@ class PhoneBookServiceTest {
         when(phoneBookRepository.save(Mockito.any()))
                 .thenReturn(contact);
 
-        var expected = new ImmutablePair<>(contact.getId(), new ContactRecord(contact.getFirstName(), contact.getLastName(), Phone.valueOf(contact.getPhoneNumber()), contact.getGender()));
+        var expected = new ImmutablePair<>(contact.getId(),
+                                           new ContactRecord(contact.getFirstName(),
+                                                             contact.getLastName(),
+                                                             Phone.valueOf(contact.getPhoneNumber()),
+                                                             contact.getGender()));
 
         // When
-        var result = phoneBookService.addContact(contact1);
+        var result = phoneBookService.addContact(new NewContactRequest(contactAnil));
 
         // Then
         Assertions.assertEquals(expected, result);
@@ -75,10 +80,14 @@ class PhoneBookServiceTest {
         when(phoneBookRepository.findByPhoneNumber(Mockito.any()))
                 .thenReturn(Optional.of(contact));
 
-        var expected = new ImmutablePair<>(contact.getId(), new ContactRecord(contact.getFirstName(), contact.getLastName(), Phone.valueOf(contact.getPhoneNumber()), contact.getGender()));
+        var expected = new ImmutablePair<>(contact.getId(),
+                new ContactRecord(contact.getFirstName(),
+                                  contact.getLastName(),
+                                  Phone.valueOf(contact.getPhoneNumber()),
+                                  contact.getGender()));
 
         // When
-        var result = phoneBookService.editContact(new EditContactRequest(contact2), contact.getPhoneNumber());
+        var result = phoneBookService.editContact(new EditContactRequest(contactAnilCan), contact.getPhoneNumber());
 
         // Then
         Assertions.assertEquals(expected, result);
@@ -105,5 +114,33 @@ class PhoneBookServiceTest {
 
         // Then
         verify(phoneBookRepository, times(1)).delete(contact);
+    }
+
+    @Test
+    void findByPhoneNumber() {
+
+        // Given
+        var contact = Contact.builder()
+                .id(1L)
+                .firstName("Anıl Can")
+                .lastName("Özgök")
+                .phoneNumber("0555 555 5555")
+                .gender(Gender.MALE)
+                .build();
+
+        when(phoneBookRepository.findByPhoneNumber(Mockito.any()))
+                .thenReturn(Optional.of(contact));
+
+        var expected = new ContactRecord(contact.getFirstName(),
+                                         contact.getLastName(),
+                                         Phone.valueOf(contact.getPhoneNumber()),
+                                         contact.getGender());
+
+        // When
+        var result = phoneBookService.getContactByPhoneNumber(contact.getPhoneNumber());
+
+        // Then
+        Assertions.assertEquals(expected, result);
+
     }
 }

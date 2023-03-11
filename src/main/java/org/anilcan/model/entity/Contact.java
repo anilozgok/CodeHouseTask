@@ -26,6 +26,4 @@ public class Contact {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 6)
     private Gender gender;
-
-    // TODO: created at and updated at
 }

@@ -7,8 +7,9 @@ import org.anilcan.exception.ContactNotFoundException;
 import org.anilcan.exception.InvalidPhoneNumberException;
 import org.anilcan.model.domain.ContactRecord;
 import org.anilcan.model.domain.Phone;
-import org.anilcan.model.dto.request.EditContactRequest;
 import org.anilcan.model.entity.Contact;
+import org.anilcan.model.request.EditContactRequest;
+import org.anilcan.model.request.NewContactRequest;
 import org.anilcan.repository.PhoneBookRepository;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.stereotype.Service;
@@ -17,24 +18,32 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class PhoneBookService {
+
+    // TODO: bknz: https://stackoverflow.com/questions/53966427/should-service-layer-accept-a-dto-or-a-custom-request-object-from-the-controller
+    // TODO: implement getDto and getResponse methods (mappers)
     private final PhoneBookRepository phoneBookRepository;
 
-    public ImmutablePair<Long, ContactRecord> addContact(ContactRecord newContact) {
+    public ImmutablePair<Long, ContactRecord> addContact(NewContactRequest newContactRequest) {
 
         log.info("PBS - processing new contact request.");
 
-        if (!newContact.phone().isValid())
+        var phone = Phone.valueOf(newContactRequest.info().phone().number());
+
+        if (!phone.isValid())
             throw new InvalidPhoneNumberException();
 
         var contact = Contact.builder()
-                .firstName(newContact.firstName())
-                .lastName(newContact.lastName())
-                .phoneNumber(newContact.phone().number())
-                .gender(newContact.gender())
+                .firstName(newContactRequest.info().firstName())
+                .lastName(newContactRequest.info().lastName())
+                .phoneNumber(phone.number())
+                .gender(newContactRequest.info().gender())
                 .build();
 
         var savedContact = phoneBookRepository.save(contact);
-        var retVal = new ContactRecord(savedContact.getFirstName(), savedContact.getLastName(), new Phone(savedContact.getPhoneNumber()), savedContact.getGender());
+        var retVal = new ContactRecord(savedContact.getFirstName(),
+                savedContact.getLastName(),
+                Phone.valueOf(savedContact.getPhoneNumber()),
+                savedContact.getGender());
 
         return ImmutablePair.of(savedContact.getId(), retVal);
     }
@@ -44,21 +53,22 @@ public class PhoneBookService {
 
         log.info("PBS - processing edit contact request.");
 
-        var oldPhoneNumber = new Phone(phoneNumberToSearch);
+        var numberToSearch = Phone.valueOf(phoneNumberToSearch);
+        var editedPhone = Phone.valueOf(editContactRequest.info().phone().number());
 
-        if (!bothPhoneNumbersValid(oldPhoneNumber, editContactRequest.info().phone()))
+        if (!bothPhoneNumbersValid(numberToSearch, editedPhone))
             throw new InvalidPhoneNumberException();
 
-        var optionalContact = phoneBookRepository.findByPhoneNumber(phoneNumberToSearch);
-        var contactToUpdate = optionalContact.orElseThrow(ContactNotFoundException::new);
+        var contactToUpdate = phoneBookRepository.findByPhoneNumber(numberToSearch.number())
+                .orElseThrow(ContactNotFoundException::new);
 
         contactToUpdate.setFirstName(editContactRequest.info().firstName());
         contactToUpdate.setLastName(editContactRequest.info().lastName());
-        contactToUpdate.setPhoneNumber(editContactRequest.info().phone().number());
+        contactToUpdate.setPhoneNumber(editedPhone.number());
         contactToUpdate.setGender(editContactRequest.info().gender());
 
         var updatedContact = phoneBookRepository.save(contactToUpdate);
-        var retVal = new ContactRecord(updatedContact.getFirstName(), updatedContact.getLastName(), new Phone(updatedContact.getPhoneNumber()), updatedContact.getGender());
+        var retVal = new ContactRecord(updatedContact.getFirstName(), updatedContact.getLastName(), Phone.valueOf(updatedContact.getPhoneNumber()), updatedContact.getGender());
 
         return ImmutablePair.of(updatedContact.getId(), retVal);
     }
@@ -68,15 +78,29 @@ public class PhoneBookService {
 
         log.info("PBS - processing delete contact request.");
 
-        var phone = new Phone(phoneNumber);
+        var phone = Phone.valueOf(phoneNumber);
 
         if (!phone.isValid())
             throw new InvalidPhoneNumberException();
 
-        var optionalContact = phoneBookRepository.findByPhoneNumber(phoneNumber);
+        var optionalContact = phoneBookRepository.findByPhoneNumber(phone.number());
         var contactToDelete = optionalContact.orElseThrow(ContactNotFoundException::new);
 
         phoneBookRepository.delete(contactToDelete);
+    }
+
+    public ContactRecord getContactByPhoneNumber(String phoneNumber) {
+        log.info("PBS - processing get contact by phone number request.");
+
+        var phone = Phone.valueOf(phoneNumber);
+
+        if (!phone.isValid())
+            throw new InvalidPhoneNumberException();
+
+        var contact = phoneBookRepository.findByPhoneNumber(phone.number()).orElseThrow(ContactNotFoundException::new);
+
+        return new ContactRecord(contact.getFirstName(), contact.getLastName(), Phone.valueOf(contact.getPhoneNumber()), contact.getGender());
+
     }
 
     private boolean bothPhoneNumbersValid(Phone oldPhone, Phone newPhone) {

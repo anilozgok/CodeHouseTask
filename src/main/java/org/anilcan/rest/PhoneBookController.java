@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.anilcan.model.request.EditContactRequest;
 import org.anilcan.model.request.NewContactRequest;
 import org.anilcan.model.response.ContactEditedResponse;
+import org.anilcan.model.response.ContactListResponse;
 import org.anilcan.model.response.ContactResponse;
 import org.anilcan.model.response.ContactSavedResponse;
 import org.anilcan.service.PhoneBookService;
@@ -29,6 +30,7 @@ public class PhoneBookController {
 
     @PostMapping("/add/")
     public ResponseEntity<ContactSavedResponse> addContact(@RequestBody NewContactRequest newContactRequest) {
+
         log.info("PBC - addContact service caught with new contact request.");
 
         var contactAdded = phoneBookService.addContact(newContactRequest);
@@ -73,4 +75,13 @@ public class PhoneBookController {
 
         return new ResponseEntity<>(new ContactResponse(contact), HttpStatus.OK);
     }
+
+    @GetMapping("/all/")
+    public ResponseEntity<ContactListResponse> getAllContacts() {
+
+        log.info("PBC - service caught get all contact request");
+
+        return new ResponseEntity<>(new ContactListResponse(phoneBookService.getAllContacts()), HttpStatus.OK);
+    }
+
 }
